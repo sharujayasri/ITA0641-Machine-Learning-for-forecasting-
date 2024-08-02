@@ -1,0 +1,54 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+from sklearn.preprocessing import StandardScaler
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Create a synthetic dataset
+np.random.seed(42)
+data = {
+    'age': np.random.randint(20, 60, size=1000),
+    'income': np.random.randint(30000, 100000, size=1000),
+    'loan_amount': np.random.randint(5000, 20000, size=1000),
+    'credit_score': np.random.choice(['Good', 'Bad'], size=1000)
+}
+df = pd.DataFrame(data)
+
+# Preprocess the data
+df['credit_score'] = df['credit_score'].map({'Good': 1, 'Bad': 0})
+X = df.drop('credit_score', axis=1)
+y = df['credit_score']
+X = StandardScaler().fit_transform(X)
+
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Train the model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+conf_matrix = confusion_matrix(y_test, y_pred)
+accuracy = accuracy_score(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
+
+# Display results
+print("Confusion Matrix:")
+print(conf_matrix)
+print("\nAccuracy Score:", accuracy)
+print("\nClassification Report:")
+print(class_report)
+
+# Plot confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Bad', 'Good'], yticklabels=['Bad', 'Good'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
