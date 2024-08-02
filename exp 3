@@ -1,0 +1,52 @@
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn import tree
+import matplotlib.pyplot as plt
+
+# Create the dataset
+data = {
+    'Outlook': ['Sunny', 'Sunny', 'Overcast', 'Rain', 'Rain', 'Rain', 'Overcast', 'Sunny', 'Sunny', 'Rain', 'Sunny', 'Overcast', 'Overcast', 'Rain'],
+    'Temperature': ['Hot', 'Hot', 'Hot', 'Mild', 'Cool', 'Cool', 'Cool', 'Mild', 'Cool', 'Mild', 'Mild', 'Mild', 'Hot', 'Mild'],
+    'Humidity': ['High', 'High', 'High', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'High'],
+    'Wind': ['Weak', 'Strong', 'Weak', 'Weak', 'Weak', 'Strong', 'Strong', 'Weak', 'Weak', 'Weak', 'Strong', 'Strong', 'Weak', 'Strong'],
+    'PlayTennis': ['No', 'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'No']
+}
+
+# Load into a pandas DataFrame
+df = pd.DataFrame(data)
+
+# Encode the categorical variables
+le = LabelEncoder()
+for col in df.columns:
+    df[col] = le.fit_transform(df[col])
+
+# Separate features and target
+X = df.drop('PlayTennis', axis=1)
+y = df['PlayTennis']
+
+# Build the decision tree classifier
+clf = DecisionTreeClassifier(criterion='entropy')
+clf.fit(X, y)
+
+# Plot the decision tree
+plt.figure(figsize=(12,8))
+tree.plot_tree(clf, feature_names=['Outlook', 'Temperature', 'Humidity', 'Wind'], class_names=['No', 'Yes'], filled=True)
+plt.show()
+
+# Define a new sample
+new_sample = pd.DataFrame({
+    'Outlook': ['Sunny'],
+    'Temperature': ['Cool'],
+    'Humidity': ['High'],
+    'Wind': ['Strong']
+})
+
+# Encode the new sample
+for col in new_sample.columns:
+    new_sample[col] = le.fit_transform(new_sample[col])
+
+# Predict the class label for the new sample
+prediction = clf.predict(new_sample)
+predicted_class = le.inverse_transform(prediction)
+print("The predicted class for the new sample is:", predicted_class[0])
